@@ -1,0 +1,21 @@
+{
+  "name": "roomml-three",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0",
+    "vitest": "^1.6.0"
+  }
+}
