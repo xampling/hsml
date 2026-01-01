@@ -1,6 +1,6 @@
-# HSML PoC
+# HSML: Hyperspace Markup Language
 
-A proof of concept that turns a nested HSML description into a deterministic Three.js scene graph. Edit the JSON live in the left pane and the layout/geometry update instantly in the preview.
+A proof of concept that turns a nested HSML description into a deterministic Three.js scene graph. Edit the JSON live in the left pane and the layout/geometry update instantly in the preview. This repository was previously named `roomml-three` and now reflects its focus on Hyperspace Markup Language.
 
 ## Getting started
 
@@ -10,6 +10,10 @@ npm run dev
 ```
 
 Then open the printed local URL to interact with the editor and viewer.
+
+## Deployment
+
+The project is configured for GitHub Pages. Pushing to `main` builds the site with Vite using a `/hsml/` base path and deploys the production bundle to Pages.
 
 ## Features
 
