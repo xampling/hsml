@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls.js';
+import FirstPersonControls from 'three/examples/jsm/controls/FirstPersonControls';
+import OrbitControls from 'three/examples/jsm/controls/OrbitControls';
 import { LayoutBox } from '../layout/types';
 import { buildScene } from '../geom/buildScene';
 
@@ -10,14 +11,15 @@ export type ViewerProps = {
   showLayout: boolean;
   showGrid: boolean;
   hasErrors: boolean;
+  navigationMode: 'first-person' | 'orbit';
 };
 
-export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErrors }: ViewerProps) {
+export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErrors, navigationMode }: ViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<FirstPersonControls | null>(null);
+  const controlsRef = useRef<FirstPersonControls | OrbitControls | null>(null);
   const clockRef = useRef<THREE.Clock | null>(null);
   const rootGroupRef = useRef<THREE.Group | null>(null);
 
@@ -40,12 +42,6 @@ export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErr
     scene.add(camera);
     cameraRef.current = camera;
 
-    const controls = new FirstPersonControls(camera, canvas);
-    controls.lookSpeed = 0.12;
-    controls.movementSpeed = 6;
-    controls.lookVertical = true;
-    controlsRef.current = controls;
-
     const clock = new THREE.Clock();
     clockRef.current = clock;
 
@@ -65,7 +61,14 @@ export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErr
       if (stop) return;
       requestAnimationFrame(renderLoop);
       const delta = clockRef.current?.getDelta() ?? 0;
-      controls.update(delta);
+      const controls = controlsRef.current;
+      if (controls) {
+        if (controls instanceof FirstPersonControls) {
+          controls.update(delta);
+        } else {
+          controls.update();
+        }
+      }
       renderer.render(scene, camera);
     };
     renderLoop();
@@ -73,11 +76,35 @@ export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErr
     return () => {
       stop = true;
       window.removeEventListener('resize', resize);
-      controls.dispose();
+      controlsRef.current?.dispose();
       clockRef.current = null;
       renderer.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const camera = cameraRef.current;
+
+    if (!canvas || !camera) return;
+
+    controlsRef.current?.dispose();
+
+    if (navigationMode === 'first-person') {
+      const controls = new FirstPersonControls(camera, canvas);
+      controls.lookSpeed = 0.12;
+      controls.movementSpeed = 6;
+      controls.lookVertical = true;
+      controlsRef.current = controls;
+      return () => controls.dispose();
+    }
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(4, 0, 4);
+    controls.enableDamping = true;
+    controlsRef.current = controls;
+    return () => controls.dispose();
+  }, [navigationMode]);
 
   useEffect(() => {
     const scene = sceneRef.current;

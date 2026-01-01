@@ -17,6 +17,7 @@ export default function App() {
   const [showLayout, setShowLayout] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
   const [activePane, setActivePane] = useState<'editor' | 'viewer'>('viewer');
+  const [navigationMode, setNavigationMode] = useState<'first-person' | 'orbit'>('first-person');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -113,6 +114,13 @@ export default function App() {
             <label>
               <input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} /> Grid/axes
             </label>
+            <label>
+              Navigation:{' '}
+              <select value={navigationMode} onChange={(e) => setNavigationMode(e.target.value as 'first-person' | 'orbit')}>
+                <option value="first-person">First person</option>
+                <option value="orbit">Orbit</option>
+              </select>
+            </label>
           </div>
           <div className="issue-list">
             <div className="badge">Issues: {issues.length}</div>
@@ -125,7 +133,14 @@ export default function App() {
           </div>
         </section>
         <section className={`viewer-shell ${isMobile && activePane !== 'viewer' ? 'mobile-hidden' : ''}`}>
-          <Viewer layout={layout} wireframe={wireframe} showLayout={showLayout} showGrid={showGrid} hasErrors={errorCount > 0} />
+          <Viewer
+            layout={layout}
+            wireframe={wireframe}
+            showLayout={showLayout}
+            showGrid={showGrid}
+            hasErrors={errorCount > 0}
+            navigationMode={navigationMode}
+          />
         </section>
       </main>
       <div className="footer">Edit the RoomML JSON on the left to update the scene.</div>
