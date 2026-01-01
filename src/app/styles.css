@@ -122,3 +122,57 @@ button.secondary {
   border: 1px solid #334155;
   margin-right: 6px;
 }
+
+.mobile-tabs {
+  display: none;
+  padding: 12px;
+  gap: 8px;
+  background: #0b1220;
+  border-bottom: 1px solid #1f2937;
+}
+
+.mobile-tabs button {
+  flex: 1;
+  background: #1f2937;
+  border: 1px solid #334155;
+}
+
+.mobile-tabs button.active {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.mobile-hidden {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .panel {
+    border-right: none;
+    border-bottom: 1px solid #1f2937;
+    max-height: 50vh;
+    overflow: auto;
+  }
+
+  .panel textarea {
+    min-height: 200px;
+  }
+
+  .viewer-shell {
+    min-height: 400px;
+  }
+
+  .mobile-tabs {
+    display: flex;
+  }
+
+  .controls,
+  .toggles {
+    gap: 6px;
+  }
+}

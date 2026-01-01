@@ -16,10 +16,33 @@ export default function App() {
   const [wireframe, setWireframe] = useState(false);
   const [showLayout, setShowLayout] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
+  const [activePane, setActivePane] = useState<'editor' | 'viewer'>('editor');
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     applyChanges(initialText);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = '(max-width: 900px)';
+    const mql = typeof window !== 'undefined' ? window.matchMedia(mediaQuery) : null;
+
+    const updateIsMobile = (matches: boolean) => {
+      setIsMobile(matches);
+      if (!matches) {
+        setActivePane('editor');
+      }
+    };
+
+    if (mql) {
+      updateIsMobile(mql.matches);
+      const handler = (event: MediaQueryListEvent) => updateIsMobile(event.matches);
+      mql.addEventListener('change', handler);
+      return () => mql.removeEventListener('change', handler);
+    }
+
+    return () => {};
   }, []);
 
   const errorCount = useMemo(() => issues.filter((i) => i.level === 'error').length, [issues]);
@@ -59,7 +82,17 @@ export default function App() {
         <h1>RoomML → Three.js Interior Builder (PoC)</h1>
       </header>
       <main>
-        <section className="panel">
+        {isMobile && (
+          <div className="mobile-tabs">
+            <button className={activePane === 'editor' ? 'active' : ''} onClick={() => setActivePane('editor')}>
+              Editor
+            </button>
+            <button className={activePane === 'viewer' ? 'active' : ''} onClick={() => setActivePane('viewer')}>
+              Viewer
+            </button>
+          </div>
+        )}
+        <section className={`panel ${isMobile && activePane !== 'editor' ? 'mobile-hidden' : ''}`}>
           <div className="controls">
             <button onClick={applyChanges}>Apply</button>
             <button onClick={formatText} className="secondary">
@@ -91,7 +124,7 @@ export default function App() {
             ))}
           </div>
         </section>
-        <section className="viewer-shell">
+        <section className={`viewer-shell ${isMobile && activePane !== 'viewer' ? 'mobile-hidden' : ''}`}>
           <Viewer layout={layout} wireframe={wireframe} showLayout={showLayout} showGrid={showGrid} hasErrors={errorCount > 0} />
         </section>
       </main>
