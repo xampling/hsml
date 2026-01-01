@@ -1,7 +1,7 @@
-declare module 'three/examples/jsm/controls/FirstPersonControls' {
+declare module 'three/examples/jsm/controls/FirstPersonControls.js' {
   import { Camera, EventDispatcher } from 'three';
 
-  export default class FirstPersonControls extends EventDispatcher {
+  export class FirstPersonControls extends EventDispatcher {
     constructor(object: Camera, domElement?: HTMLElement);
     lookSpeed: number;
     movementSpeed: number;
@@ -11,10 +11,10 @@ declare module 'three/examples/jsm/controls/FirstPersonControls' {
   }
 }
 
-declare module 'three/examples/jsm/controls/OrbitControls' {
+declare module 'three/examples/jsm/controls/OrbitControls.js' {
   import { Camera, EventDispatcher, Vector3 } from 'three';
 
-  export default class OrbitControls extends EventDispatcher {
+  export class OrbitControls extends EventDispatcher {
     constructor(object: Camera, domElement?: HTMLElement);
     target: Vector3;
     enableDamping: boolean;

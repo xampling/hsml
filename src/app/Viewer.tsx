@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import FirstPersonControls from 'three/examples/jsm/controls/FirstPersonControls';
-import OrbitControls from 'three/examples/jsm/controls/OrbitControls';
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { LayoutBox } from '../layout/types';
 import { buildScene } from '../geom/buildScene';
 
