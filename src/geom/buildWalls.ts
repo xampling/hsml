@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { DoorNode, RoomNode, WindowNode, WallSide } from '../roomml/types';
-import { buildWallShape, Opening } from './wallHoles';
+import { LayoutBox } from '../layout/types';
+import { Opening } from '../hsml/types';
+import { buildWallShape } from './wallHoles';
 import { MaterialSet } from './materials';
 
 function createWallMesh(length: number, height: number, thickness: number, openings: Opening[], material: THREE.Material) {
@@ -11,34 +12,31 @@ function createWallMesh(length: number, height: number, thickness: number, openi
   return mesh;
 }
 
-export function buildWalls(room: RoomNode, materials: MaterialSet): THREE.Group {
-  const wallT = room.thickness?.wall ?? 0.12;
+export function buildWalls(room: LayoutBox, wallT: number, materials: MaterialSet): THREE.Group {
   const group = new THREE.Group();
 
-  const openingsByWall: Record<WallSide, Opening[]> = { N: [], E: [], S: [], W: [] };
-  for (const child of room.children ?? []) {
-    if (child.type === 'door' || child.type === 'window') {
-      openingsByWall[child.wall].push(child as DoorNode | WindowNode);
-    }
+  const openingsByWall: Record<Opening['wall'], Opening[]> = { N: [], E: [], S: [], W: [] };
+  for (const opening of room.node.style.openings) {
+    openingsByWall[opening.wall].push(opening);
   }
 
-  const north = createWallMesh(room.size.w, room.size.h, wallT, openingsByWall['N'], materials.wall);
+  const north = createWallMesh(room.w, room.h, wallT, openingsByWall['N'], materials.wall);
   north.position.set(0, 0, 0);
   group.add(north);
 
-  const south = createWallMesh(room.size.w, room.size.h, wallT, openingsByWall['S'], materials.wall);
-  south.position.set(room.size.w, 0, room.size.d);
+  const south = createWallMesh(room.w, room.h, wallT, openingsByWall['S'], materials.wall);
+  south.position.set(room.w, 0, room.d);
   south.rotation.y = Math.PI;
   group.add(south);
 
-  const west = createWallMesh(room.size.d, room.size.h, wallT, openingsByWall['W'], materials.wall);
+  const west = createWallMesh(room.d, room.h, wallT, openingsByWall['W'], materials.wall);
   west.rotation.y = Math.PI / 2;
-  west.position.set(0, 0, room.size.d);
+  west.position.set(0, 0, room.d);
   group.add(west);
 
-  const east = createWallMesh(room.size.d, room.size.h, wallT, openingsByWall['E'], materials.wall);
+  const east = createWallMesh(room.d, room.h, wallT, openingsByWall['E'], materials.wall);
   east.rotation.y = -Math.PI / 2;
-  east.position.set(room.size.w, 0, 0);
+  east.position.set(room.w, 0, 0);
   group.add(east);
 
   return group;

@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import Viewer from './Viewer';
-import { sampleRoomML } from './sampleRoomML';
-import { parseRoomML } from '../roomml/parse';
-import { validateRoomML } from '../roomml/validate';
 import { layoutTree } from '../layout/layoutFlex';
 import { LayoutBox } from '../layout/types';
-import { RoomMLNode, ValidationIssue } from '../roomml/types';
+import { ValidationIssue } from '../hsml/types';
+import { parseHSML } from '../hsml/parseHSML';
+import { buildTree } from '../hsml/buildTree';
+import { resolveStyles } from '../hsml/resolveStyles';
+import { measureTree } from '../hsml/measure';
+import { validateHSML } from '../hsml/validate';
+import { sampleHsml } from './sampleHsml';
 
-const initialText = JSON.stringify(sampleRoomML, null, 2);
+const initialText = sampleHsml;
 
 export default function App() {
   const [text, setText] = useState(initialText);
@@ -51,24 +54,22 @@ export default function App() {
   function applyChanges(textOverride?: string) {
     const source = textOverride ?? text;
     try {
-      const parsed = parseRoomML(source) as RoomMLNode;
-      const validation = validateRoomML(parsed);
+      const parsed = parseHSML(source);
+      const tree = buildTree(parsed.nodes);
+      const resolved = resolveStyles(tree, parsed.rules);
+      measureTree(resolved);
+      const validation = validateHSML(resolved);
       setIssues(validation);
       const hasError = validation.some((v) => v.level === 'error');
-      if (hasError) return;
-      const nextLayout = layoutTree(parsed);
+      if (hasError) {
+        setLayout(null);
+        return;
+      }
+      const nextLayout = layoutTree(resolved);
       setLayout(nextLayout);
     } catch (err) {
       setIssues([{ level: 'error', path: 'root', message: (err as Error).message }]);
-    }
-  }
-
-  function formatText() {
-    try {
-      const parsed = JSON.parse(text);
-      setText(JSON.stringify(parsed, null, 2));
-    } catch (err) {
-      setIssues([{ level: 'error', path: 'format', message: (err as Error).message }]);
+      setLayout(null);
     }
   }
 
@@ -80,7 +81,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header>
-        <h1>RoomML → Three.js Interior Builder (PoC)</h1>
+        <h1>HSML → Three.js Interior Builder (PoC)</h1>
       </header>
       <main>
         {isMobile && (
@@ -96,9 +97,6 @@ export default function App() {
         <section className={`panel ${isMobile && activePane !== 'editor' ? 'mobile-hidden' : ''}`}>
           <div className="controls">
             <button onClick={() => applyChanges()}>Apply</button>
-            <button onClick={formatText} className="secondary">
-              Format
-            </button>
             <button onClick={resetSample} className="secondary">
               Reset to sample
             </button>
@@ -143,7 +141,7 @@ export default function App() {
           />
         </section>
       </main>
-      <div className="footer">Edit the RoomML JSON on the left to update the scene.</div>
+      <div className="footer">Edit the HSML text on the left to update the scene.</div>
     </div>
   );
 }
