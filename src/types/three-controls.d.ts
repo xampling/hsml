@@ -6,6 +6,7 @@ declare module 'three/examples/jsm/controls/FirstPersonControls.js' {
     lookSpeed: number;
     movementSpeed: number;
     lookVertical: boolean;
+    activeLook: boolean;
     update(delta: number): void;
     dispose(): void;
   }

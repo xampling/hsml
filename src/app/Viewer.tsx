@@ -94,10 +94,28 @@ export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErr
       const controls = new FirstPersonControls(camera, canvas);
       controls.lookSpeed = 0.12;
       controls.movementSpeed = 6;
-      (controls as any).dragToLook = true;
-      (controls as any).lookVertical = true;
+      controls.lookVertical = true;
+      controls.activeLook = false;
       controlsRef.current = controls;
-      return () => controls.dispose();
+
+      const handlePointerDown = () => {
+        controls.activeLook = true;
+      };
+
+      const handlePointerUp = () => {
+        controls.activeLook = false;
+      };
+
+      canvas.addEventListener('pointerdown', handlePointerDown);
+      canvas.addEventListener('pointerup', handlePointerUp);
+      canvas.addEventListener('pointerleave', handlePointerUp);
+
+      return () => {
+        canvas.removeEventListener('pointerdown', handlePointerDown);
+        canvas.removeEventListener('pointerup', handlePointerUp);
+        canvas.removeEventListener('pointerleave', handlePointerUp);
+        controls.dispose();
+      };
     }
 
     const controls = new OrbitControls(camera, canvas);
