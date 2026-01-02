@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import { DoorNode, WindowNode } from '../roomml/types';
-
-export type Opening = DoorNode | WindowNode;
+import { Opening } from '../hsml/types';
 
 export function buildWallShape(length: number, height: number, openings: Opening[]): THREE.Shape {
   const shape = new THREE.Shape();
@@ -12,13 +10,12 @@ export function buildWallShape(length: number, height: number, openings: Opening
   shape.lineTo(0, 0);
 
   for (const opening of openings) {
-    const sill = opening.sill ?? (opening.type === 'window' ? 0.9 : 0);
     const hole = new THREE.Path();
-    hole.moveTo(opening.offset, sill);
-    hole.lineTo(opening.offset + opening.size.w, sill);
-    hole.lineTo(opening.offset + opening.size.w, sill + opening.size.h);
-    hole.lineTo(opening.offset, sill + opening.size.h);
-    hole.lineTo(opening.offset, sill);
+    hole.moveTo(opening.offset, opening.sill);
+    hole.lineTo(opening.offset + opening.w, opening.sill);
+    hole.lineTo(opening.offset + opening.w, opening.sill + opening.h);
+    hole.lineTo(opening.offset, opening.sill + opening.h);
+    hole.lineTo(opening.offset, opening.sill);
     shape.holes.push(hole);
   }
 

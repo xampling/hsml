@@ -94,8 +94,8 @@ export default function Viewer({ layout, wireframe, showLayout, showGrid, hasErr
       const controls = new FirstPersonControls(camera, canvas);
       controls.lookSpeed = 0.12;
       controls.movementSpeed = 6;
-      controls.dragToLook = true;
-      controls.lookVertical = true;
+      (controls as any).dragToLook = true;
+      (controls as any).lookVertical = true;
       controlsRef.current = controls;
       return () => controls.dispose();
     }

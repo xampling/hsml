@@ -1,14 +1,14 @@
-import { RoomMLNode } from '../roomml/types';
+import { HSMLNode } from '../hsml/types';
 
 export type LayoutBox = {
   id: string;
-  type: RoomMLNode['type'];
+  type: HSMLNode['kind'];
   x: number;
   y: number;
   z: number;
   w: number;
   h: number;
   d: number;
-  node: RoomMLNode;
+  node: HSMLNode;
   children: LayoutBox[];
 };

@@ -4,6 +4,7 @@ import { createLayoutHelpers } from '../layout/debugLayout';
 import { createDefaultMaterials } from './materials';
 import { buildRoom } from './buildRoom';
 import { buildHelpers } from './debugGeom';
+import { buildLeaf } from './furniture';
 
 export type SceneBuildOptions = {
   wireframe?: boolean;
@@ -30,17 +31,24 @@ export function buildScene(layout: LayoutBox, options: SceneBuildOptions = {}): 
 }
 
 function buildFromLayout(layout: LayoutBox, materials: ReturnType<typeof createDefaultMaterials>): THREE.Group {
-  const group = new THREE.Group();
+  let group: THREE.Group;
+
+  if (layout.type === 'room') {
+    group = buildRoom(layout, materials);
+  } else if (layout.type === 'leaf') {
+    group = buildLeaf(layout, materials);
+  } else {
+    group = new THREE.Group();
+  }
+
   group.position.set(layout.x, layout.y, layout.z);
   group.userData.layout = layout;
 
-  if (layout.type === 'room') {
-    return buildRoom(layout, materials);
-  }
-
-  for (const child of layout.children) {
-    const childGroup = buildFromLayout(child, materials);
-    group.add(childGroup);
+  if (layout.type !== 'leaf') {
+    for (const child of layout.children) {
+      const childGroup = buildFromLayout(child, materials);
+      group.add(childGroup);
+    }
   }
 
   return group;
